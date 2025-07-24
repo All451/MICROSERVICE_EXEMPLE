@@ -1,0 +1,4 @@
+# Este arquivo é informativo. A segurança é aplicada via labels no namespace.
+# Verifique que o namespace microservices tem:
+# labels:
+#   pod-security.kubernetes.io/enforce: restricted

@@ -1,0 +1,13 @@
+# Valores personalizados para kube-prometheus-stack
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false
+
+grafana:
+  adminPassword: admin
+  service:
+    type: NodePort
+    nodePort: 30081
+
+alertmanager:
+  enabled: true

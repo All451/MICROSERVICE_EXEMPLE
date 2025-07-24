@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+  namespace: microservices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      containers:
+        - name: gateway
+          image: node:18-alpine
+          command: ["/bin/sh"]
+          args:
+            - -c
+            - |
+              npm install express http-proxy-middleware && \
+              node -e "
+              const express = require('express');
+              const { createProxyMiddleware } = require('http-proxy-middleware');
+              const app = express();
+              app.use('/api/users', createProxyMiddleware({ target: 'http://users-svc.microservices.svc.cluster.local:3001', changeOrigin: true }));
+              app.get('/health', (req, res) => res.json({ status: 'Gateway OK' }));
+              app.listen(3000, () => console.log('Gateway rodando na porta 3000'));
+              "
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"

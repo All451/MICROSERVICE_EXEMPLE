@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+meta
+  name: users
+  namespace: microservices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: users
+  template:
+    meta
+      labels:
+        app: users
+    spec:
+      containers:
+        - name: users
+          image: node:18-alpine
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-pass
+                  key: password
+          command: ["/bin/sh"]
+          args: ["-c", "npm install express && node -e \"require('express')().get('/', (r,s)=>s.json({service:'users',secured:true})).listen(3001)\""]
+          ports:
+            - containerPort: 3001
+          resources:
+            requests: { memory: "64Mi", cpu: "100m" }
+            limits: { memory: "128Mi", cpu: "200m" }
+---
+apiVersion: v1
+kind: Service
+meta
+  name: users-svc
+  namespace: microservices
+spec:
+  selector: { app: users }
+  ports: [{ port: 3001, targetPort: 3001 }]

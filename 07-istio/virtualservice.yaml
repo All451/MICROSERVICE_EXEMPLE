@@ -1,0 +1,27 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: users-vs
+  namespace: microservices
+spec:
+  hosts:
+    - "demo.local"
+  gateways:
+    - microservices-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /api/users
+      route:
+        - destination:
+            host: users-svc.microservices.svc.cluster.local
+            port:
+              number: 3001
+    - match:
+        - uri:
+            prefix: /health
+      route:
+        - destination:
+            host: gateway-svc.microservices.svc.cluster.local
+            port:
+              number: 80
